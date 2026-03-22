@@ -43,4 +43,9 @@ return [
         'dry_run' => (bool) env('X_DRY_RUN', true),
     ],
 
+        'sportsdataio' => [
+        'base_url' => env('SPORTSDATAIO_BASE_URL', 'https://api.sportsdata.io'),
+        'key' => env('SPORTSDATAIO_API_KEY'),
+    ],
+
 ];
