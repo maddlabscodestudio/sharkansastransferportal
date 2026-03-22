@@ -11,7 +11,7 @@
     <div class="flex items-end justify-between gap-4 flex-wrap">
         <div>
             <h1 class="text-2xl font-bold">Transfer Portal</h1>
-            <p class="text-sm text-gray-600">Mock data (Mar–May 2025). Real X ingest later.</p>
+            <p class="text-sm text-gray-600">Live transfer portal feed with source-based confidence and player stats.</p>
         </div>
 
         <form class="flex gap-2 flex-wrap" method="get" action="/portal">
@@ -57,7 +57,20 @@
             <tbody>
             @foreach($events as $e)
                 <tr class="border-t">
-                    <td class="p-3 font-medium">{{ $e->player_name }}</td>
+                    <td class="p-3">
+                        <div class="font-medium">{{ $e->player_name }}</div>
+
+                        @if(!empty($e->games) && $e->games > 0)
+                            <div class="text-xs text-gray-600 mt-1">
+                                {{ round($e->points / $e->games, 1) }} PPG •
+                                {{ round($e->rebounds / $e->games, 1) }} RPG •
+                                {{ round($e->assists / $e->games, 1) }} APG
+                                @if(!empty($e->true_shooting_percentage))
+                                    • {{ round($e->true_shooting_percentage, 1) }} TS%
+                                @endif
+                            </div>
+                        @endif
+                    </td>
                     <td class="p-3">{{ $e->from_team }}</td>
                     <td class="p-3 text-gray-700">{{ $e->first_reported_at }}</td>
                     <td class="p-3">

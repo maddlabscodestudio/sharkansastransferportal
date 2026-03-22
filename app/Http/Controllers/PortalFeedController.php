@@ -25,8 +25,17 @@ class PortalFeedController extends Controller
                 'e.needs_waiver',
                 'e.no_eligibility_remaining',
                 'e.eligibility_note',
+                'stats.points',
+                'stats.rebounds',
+                'stats.assists',
+                'stats.games',
+                'stats.true_shooting_percentage',
                 DB::raw("GROUP_CONCAT(DISTINCT '@' || s.handle) as reported_by")
             )
+            ->leftJoin('player_season_stats as stats', function ($join) {
+                $join->on('e.player_name', '=', 'stats.player_name')
+                    ->where('stats.season', 2026);
+            })
             ->leftJoin('portal_raw_posts as rp', 'rp.event_id', '=', 'e.id')
             ->leftJoin('portal_sources as s', 's.id', '=', 'rp.source_id')
             ->when($team, fn ($q) => $q->where('e.from_team', $team))

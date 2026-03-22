@@ -236,7 +236,7 @@ class PortalIngestTwitter extends Command
 
     private function portalQuery(): string
     {
-        return '(from:VerbalCommits OR from:portal_updates OR from:ThePortalReport OR from:JeffBorzello OR from:GoodmanHoops OR from:TravisBranham_ OR from:TrillyDonovan OR from:MikeSautter_ OR from:TheFieldOf68 OR from:AaronTorresPod OR from:TransferPortal) ' .
+        return '(from:VerbalCommits OR from:LeagueRDY OR from:portal_updates OR from:ThePortalReport OR from:JeffBorzello OR from:GoodmanHoops OR from:TravisBranham_ OR from:TrillyDonovan OR from:MikeSautter_ OR from:TheFieldOf68 OR from:AaronTorresPod OR from:TransferPortal) ' .
             '("entered the transfer portal" OR "entering the transfer portal" OR "enter the transfer portal" OR "hit the transfer portal" OR "hit the portal") ' .
             '-football -qb -wr -rb -te -ol -dl -baseball -track';
     }

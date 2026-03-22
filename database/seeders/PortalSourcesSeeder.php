@@ -12,10 +12,11 @@ class PortalSourcesSeeder extends Seeder
         $sources = [
 
             // Tier 1 — Core Aggregators
-            ['handle' => 'VerbalCommits',  'tier' => 1, 'sport' => 'basketball', 'needs_sport_filter' => false],
-            ['handle' => 'ThePortalReport','tier' => 1, 'sport' => 'basketball', 'needs_sport_filter' => false],
-            ['handle' => 'portal_updates', 'tier' => 1, 'sport' => 'basketball', 'needs_sport_filter' => false],
-
+            ['handle' => 'VerbalCommits',   'tier' => 1, 'sport' => 'basketball', 'needs_sport_filter' => false],
+            ['handle' => 'ThePortalReport', 'tier' => 1, 'sport' => 'basketball', 'needs_sport_filter' => false],
+            ['handle' => 'LeagueRDY',       'tier' => 1, 'sport' => 'basketball', 'needs_sport_filter' => false],
+            ['handle' => 'portal_updates',  'tier' => 1, 'sport' => 'basketball', 'needs_sport_filter' => false],
+            
             // Tier 2 — National Reporters
             ['handle' => 'JeffBorzello',   'tier' => 2, 'sport' => 'basketball', 'needs_sport_filter' => false],
             ['handle' => 'TravisBranham_', 'tier' => 2, 'sport' => 'basketball', 'needs_sport_filter' => false],
