@@ -217,6 +217,8 @@
                             <span class="text-[11px] leading-none">{{ sortArrow('usage_rate_percentage', $currentSort, $currentDir) }}</span>
                         </a>
                     </th>
+
+                    <th class="px-3 py-2 text-center">Actions</th>
                 </tr>
                 </thead>
             <tbody>
@@ -342,6 +344,22 @@
                                 {{ $p->usage_rate_percentage !== null ? round($p->usage_rate_percentage, 1) : '—' }}
                             </span>
                         @endif
+                    </td>
+                    <td class="px-3 py-2 text-center">
+                        <form method="POST"
+                            action="{{ route('portal-stats-manage.destroy', $p->id) }}"
+                            onsubmit="return confirm('Delete stats for {{ $p->player_name }}?');">
+                            @csrf
+                            @method('DELETE')
+
+                            <button
+                                type="submit"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-red-500 hover:bg-red-600 text-white text-sm transition"
+                                title="Delete record"
+                            >
+                                🗑️
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 @empty

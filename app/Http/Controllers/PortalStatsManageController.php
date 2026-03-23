@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
+use App\Models\PlayerSeasonStat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
-class PortalStatsController extends Controller
+class PortalStatsManageController extends Controller
 {
     public function index(Request $request)
     {
@@ -113,5 +114,15 @@ class PortalStatsController extends Controller
             'season' => $season,
             'limit' => $limit,
         ]);
+    }
+
+    public function destroy(int $id)
+    {
+        $row = PlayerSeasonStat::findOrFail($id);
+        $row->delete();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Stat record deleted.');
     }
 }
