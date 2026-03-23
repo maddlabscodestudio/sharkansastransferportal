@@ -354,68 +354,72 @@
                         </td>
                     </tr>
 
-                    <tr id="{{ $detailId }}" class="hidden bg-slate-100 border-t border-slate-200">
-                        <td colspan="18" class="px-5 py-4">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
-                                <div>
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Overview</div>
-                                    <div class="space-y-1 text-slate-700">
-                                        <div><span class="font-medium text-slate-900">Player:</span> {{ $p->player_name }}</div>
-                                        <div><span class="font-medium text-slate-900">From:</span> {{ $p->from_team }}</div>
-                                        <div><span class="font-medium text-slate-900">Position:</span> {{ $p->position ?? '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">Games:</span> {{ $p->games ?? '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">Minutes:</span> {{ $p->minutes ?? '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">MPG:</span> {{ $p->mpg ?? '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">PF:</span> {{ $p->personal_fouls ?? '—' }}</div>
-                                    </div>
-                                </div>
+                    <tr id="{{ $detailId }}" class="hidden bg-slate-900/95">
+                        <td colspan="100%" class="px-4 py-4">
+                            <div class="flex justify-center">
+                                <div class="w-full max-w-5xl rounded-2xl border border-slate-700 bg-slate-800/70 px-6 py-6 text-center shadow-lg">
+                                    <div class="grid gap-6 md:grid-cols-3">
 
-                                <div>
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Shooting Volume</div>
-                                    <div class="space-y-1 text-slate-700">
-                                        <div><span class="font-medium text-slate-900">FG:</span> {{ $p->field_goals_made ?? '—' }}/{{ $p->field_goals_attempted ?? '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">2PT:</span> {{ $p->two_pointers_made ?? '—' }}/{{ $p->two_pointers_attempted ?? '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">3PT:</span> {{ $p->three_pointers_made ?? '—' }}/{{ $p->three_pointers_attempted ?? '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">FT:</span> {{ $p->free_throws_made ?? '—' }}/{{ $p->free_throws_attempted ?? '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">FGA/G:</span> {{ ($p->games && $p->field_goals_attempted !== null) ? round($p->field_goals_attempted / $p->games, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">3PA/G:</span> {{ ($p->games && $p->three_pointers_attempted !== null) ? round($p->three_pointers_attempted / $p->games, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">FTA/G:</span> {{ ($p->games && $p->free_throws_attempted !== null) ? round($p->free_throws_attempted / $p->games, 1) : '—' }}</div>
-                                    </div>
-                                </div>
+                                        {{-- Overview --}}
+                                        <div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                                            <h4 class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">Overview</h4>
+                                            <div class="space-y-2 text-sm text-slate-200">
+                                                <div><span class="text-slate-400">Player:</span> {{ $p->player_name }}</div>
+                                                <div><span class="text-slate-400">From:</span> {{ $p->from_team }}</div>
+                                                <div><span class="text-slate-400">Position:</span> {{ $p->position ?? '—' }}</div>
+                                                <div><span class="text-slate-400">Games:</span> {{ $p->games ?? '—' }}</div>
+                                                <div><span class="text-slate-400">Minutes:</span> {{ $p->minutes ?? '—' }}</div>
+                                                <div><span class="text-slate-400">MPG:</span> {{ $p->mpg ?? '—' }}</div>
+                                                <div><span class="text-slate-400">PF:</span> {{ $p->personal_fouls ?? '—' }}</div>
+                                            </div>
+                                        </div>
 
-                                <div>
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Percentages & Advanced</div>
-                                    <div class="space-y-1 text-slate-700">
-                                        <div><span class="font-medium text-slate-900">FG%:</span> {{ $p->field_goals_percentage !== null ? round($p->field_goals_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">eFG%:</span> {{ $p->effective_field_goals_percentage !== null ? round($p->effective_field_goals_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">2PT%:</span> {{ $p->two_pointers_percentage !== null ? round($p->two_pointers_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">3PT%:</span> {{ $p->three_pointers_percentage !== null ? round($p->three_pointers_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">FT%:</span> {{ $p->free_throws_percentage !== null ? round($p->free_throws_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">TS%:</span> {{ $p->true_shooting_percentage !== null ? round($p->true_shooting_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">PER:</span> {{ $p->player_efficiency_rating !== null ? round($p->player_efficiency_rating, 1) : '—' }}</div>
-                                        <div>
-                                            <span class="font-medium text-slate-900">USG%:</span>
-                                            @if($p->minutes !== null && $p->minutes < 100)
-                                                <span class="text-slate-400" title="Small sample size">
-                                                    {{ $p->usage_rate_percentage !== null ? round($p->usage_rate_percentage, 1) : '—' }}
-                                                </span>
-                                            @else
-                                                {{ $p->usage_rate_percentage !== null ? round($p->usage_rate_percentage, 1) : '—' }}
-                                            @endif
+                                        {{-- Shooting Volume --}}
+                                        <div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                                            <h4 class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">Shooting Volume</h4>
+                                            <div class="grid grid-cols-2 gap-3 text-sm text-slate-200">
+                                                <div><div class="text-slate-400">FG</div><div>{{ $p->field_goals_made ?? '—' }}/{{ $p->field_goals_attempted ?? '—' }}</div></div>
+                                                <div><div class="text-slate-400">2PT</div><div>{{ $p->two_pointers_made ?? '—' }}/{{ $p->two_pointers_attempted ?? '—' }}</div></div>
+                                                <div><div class="text-slate-400">3PT</div><div>{{ $p->three_pointers_made ?? '—' }}/{{ $p->three_pointers_attempted ?? '—' }}</div></div>
+                                                <div><div class="text-slate-400">FT</div><div>{{ $p->free_throws_made ?? '—' }}/{{ $p->free_throws_attempted ?? '—' }}</div></div>
+                                                <div><div class="text-slate-400">FGA/G</div><div>{{ ($p->games && $p->field_goals_attempted !== null) ? round($p->field_goals_attempted / $p->games, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">3PA/G</div><div>{{ ($p->games && $p->three_pointers_attempted !== null) ? round($p->three_pointers_attempted / $p->games, 1) : '—' }}</div></div>
+                                                <div class="col-span-2"><div class="text-slate-400">FTA/G</div><div>{{ ($p->games && $p->free_throws_attempted !== null) ? round($p->free_throws_attempted / $p->games, 1) : '—' }}</div></div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Percentages & Advanced --}}
+                                        <div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                                            <h4 class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">Percentages & Advanced</h4>
+                                            <div class="grid grid-cols-2 gap-3 text-sm text-slate-200">
+                                                <div><div class="text-slate-400">FG%</div><div>{{ $p->field_goals_percentage !== null ? round($p->field_goals_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">eFG%</div><div>{{ $p->effective_field_goals_percentage !== null ? round($p->effective_field_goals_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">2PT%</div><div>{{ $p->two_pointers_percentage !== null ? round($p->two_pointers_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">3PT%</div><div>{{ $p->three_pointers_percentage !== null ? round($p->three_pointers_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">FT%</div><div>{{ $p->free_throws_percentage !== null ? round($p->free_throws_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">TS%</div><div>{{ $p->true_shooting_percentage !== null ? round($p->true_shooting_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">PER</div><div>{{ $p->player_efficiency_rating !== null ? round($p->player_efficiency_rating, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">USG%</div><div>{{ $p->usage_rate_percentage !== null ? round($p->usage_rate_percentage, 1) : '—' }}</div></div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div>
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Impact & Rates</div>
-                                    <div class="space-y-1 text-slate-700">
-                                        <div><span class="font-medium text-slate-900">ORB / DRB:</span> {{ $p->offensive_rebounds ?? '—' }} / {{ $p->defensive_rebounds ?? '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">TRB%:</span> {{ $p->total_rebounds_percentage !== null ? round($p->total_rebounds_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">AST%:</span> {{ $p->assists_percentage !== null ? round($p->assists_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">STL%:</span> {{ $p->steals_percentage !== null ? round($p->steals_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">BLK%:</span> {{ $p->blocks_percentage !== null ? round($p->blocks_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">TOV%:</span> {{ $p->turnovers_percentage !== null ? round($p->turnovers_percentage, 1) : '—' }}</div>
-                                        <div><span class="font-medium text-slate-900">Stocks/G:</span> {{ ($p->games && $p->steals !== null && $p->blocked_shots !== null) ? round(($p->steals + $p->blocked_shots) / $p->games, 1) : '—' }}</div>
+                                    <div class="mt-6 flex justify-center">
+                                        <div class="w-full max-w-3xl rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                                            <h4 class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">Impact & Rates</h4>
+                                            <div class="grid grid-cols-2 gap-3 text-sm text-slate-200 md:grid-cols-3">
+                                                <div><div class="text-slate-400">ORB / DRB</div><div>{{ $p->offensive_rebounds ?? '—' }} / {{ $p->defensive_rebounds ?? '—' }}</div></div>
+                                                <div><div class="text-slate-400">TRB%</div><div>{{ $p->total_rebounds_percentage !== null ? round($p->total_rebounds_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">AST%</div><div>{{ $p->assists_percentage !== null ? round($p->assists_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">STL%</div><div>{{ $p->steals_percentage !== null ? round($p->steals_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">BLK%</div><div>{{ $p->blocks_percentage !== null ? round($p->blocks_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">TOV%</div><div>{{ $p->turnovers_percentage !== null ? round($p->turnovers_percentage, 1) : '—' }}</div></div>
+                                                <div class="col-span-2 md:col-span-3">
+                                                    <div class="text-slate-400">Stocks/G</div>
+                                                    <div>{{ ($p->games && $p->steals !== null && $p->blocked_shots !== null) ? round(($p->steals + $p->blocked_shots) / $p->games, 1) : '—' }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
