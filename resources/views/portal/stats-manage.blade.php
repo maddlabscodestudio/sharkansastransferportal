@@ -47,7 +47,7 @@
                 <p class="text-sm text-slate-600">Sortable transfer portal stats dashboard</p>
             </div>
 
-            <form class="flex gap-2 flex-wrap" method="get" action="/portal-stats">
+            <form class="flex gap-2 flex-wrap" method="get" action="/portal-stats-manage">
                 <input
                     type="number"
                     name="season"
@@ -66,7 +66,7 @@
 
                 <select name="missing" class="border rounded px-3 py-2 text-sm">
                     <option value="">All players</option>
-                    <option value="1" @selected(request('missing') == 1)>Missing stats only</option>
+                    <option value="1" @selected($missingOnly)>Missing stats only</option>
                 </select>
 
                 <button class="bg-blue-700 hover:bg-blue-800 text-white rounded px-4 py-2 text-sm font-medium transition">
@@ -348,7 +348,7 @@
                     <td class="px-3 py-2 text-center">
                         <form method="POST"
                             action="{{ route('portal-stats-manage.destroy-event', $p->event_id) }}"
-                            onsubmit="return confirm('Delete stats for {{ $p->player_name }}?');">
+                            onsubmit="return confirm('Delete portal entry for {{ $p->player_name }}?');">
                             @csrf
                             @method('DELETE')
 
@@ -358,7 +358,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="17" class="p-6 text-center text-gray-500">No portal players found.</td>
+                    <td colspan="19" class="p-6 text-center text-gray-500">No portal players found.</td>
                 </tr>
                 @endforelse
             </tbody>

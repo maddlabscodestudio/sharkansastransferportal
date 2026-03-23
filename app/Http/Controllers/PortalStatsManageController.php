@@ -12,7 +12,7 @@ class PortalStatsManageController extends Controller
     {
         $season = (int) $request->get('season', 2026);
         $limit = min((int) $request->get('limit', 100), 500);
-        // $missingOnly = (string) $request->get('missing', '') === '1';
+        $missingOnly = (string) $request->get('missing', '') === '1';
 
         $sort = $request->get('sort', 'first_reported_at');
         $dir = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
@@ -52,9 +52,16 @@ class PortalStatsManageController extends Controller
 
         $query->whereNotNull('s.id');
 
-        // if ($missingOnly) {
-        //     $query->whereNull('s.id');
-        // }
+        if ($missingOnly) {
+            $query->where(function ($q) {
+                $q->whereNull('s.id')
+                ->orWhereNull('s.field_goals_made')
+                ->orWhereNull('s.field_goals_attempted')
+                ->orWhereNull('s.effective_field_goals_percentage');
+            });
+        } else {
+            $query->whereNotNull('s.id');
+        }
 
         $players = $query
         ->select(
@@ -117,6 +124,7 @@ class PortalStatsManageController extends Controller
             'players' => $players,
             'season' => $season,
             'limit' => $limit,
+            'missingOnly' => $missingOnly,
         ]);
     }
 
