@@ -17,29 +17,32 @@ class PortalStatsManageController extends Controller
         $sort = $request->get('sort', 'first_reported_at');
         $dir = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $allowedSorts = [
-            'player_name',
-            'from_team',
-            'games',
-            'mpg',
-            'ppg',
-            'rpg',
-            'apg',
-            'spg',
-            'bpg',
-            'tovpg',
-            'field_goals_percentage',
-            'three_pointers_percentage',
-            'free_throws_percentage',
-            'true_shooting_percentage',
-            'player_efficiency_rating',
-            'usage_rate_percentage',
-            'first_reported_at',
+        $sortMap = [
+            'player_name' => 'e.player_name',
+            'from_team' => 'e.from_team',
+            'games' => 's.games',
+            'mpg' => 'mpg',
+            'ppg' => 'ppg',
+            'rpg' => 'rpg',
+            'apg' => 'apg',
+            'spg' => 'spg',
+            'bpg' => 'bpg',
+            'tovpg' => 'tovpg',
+            'field_goals_percentage' => 's.field_goals_percentage',
+            'three_pointers_percentage' => 's.three_pointers_percentage',
+            'free_throws_percentage' => 's.free_throws_percentage',
+            'true_shooting_percentage' => 's.true_shooting_percentage',
+            'player_efficiency_rating' => 's.player_efficiency_rating',
+            'usage_rate_percentage' => 's.usage_rate_percentage',
+            'position' => 's.position',
+            'first_reported_at' => 'first_reported_at',
         ];
 
-        if (!in_array($sort, $allowedSorts)) {
+        if (!array_key_exists($sort, $sortMap)) {
             $sort = 'first_reported_at';
         }
+
+        $orderColumn = $sortMap[$sort];
 
         $query = DB::table('portal_events as e')
             ->leftJoin('player_season_stats as s', function ($join) use ($season) {
@@ -55,10 +58,10 @@ class PortalStatsManageController extends Controller
 
         $players = $query
         ->select(
+            'e.id as event_id',
             'e.player_name',
             'e.from_team',
-            DB::raw('MAX(e.first_reported_at) as first_reported_at'),
-
+            's.id as id',
             's.games',
             's.minutes',
             's.points',
@@ -75,7 +78,7 @@ class PortalStatsManageController extends Controller
             's.usage_rate_percentage',
             's.position',
             's.synced_at',
-
+            DB::raw('MAX(e.first_reported_at) as first_reported_at'),
             DB::raw('CASE WHEN s.games > 0 THEN ROUND(1.0 * s.minutes / s.games, 1) END as mpg'),
             DB::raw('CASE WHEN s.games > 0 THEN ROUND(1.0 * s.points / s.games, 1) END as ppg'),
             DB::raw('CASE WHEN s.games > 0 THEN ROUND(1.0 * s.rebounds / s.games, 1) END as rpg'),
@@ -85,6 +88,7 @@ class PortalStatsManageController extends Controller
             DB::raw('CASE WHEN s.games > 0 THEN ROUND(1.0 * s.turnovers / s.games, 1) END as tovpg')
         )
         ->groupBy(
+            'e.id',
             'e.player_name',
             'e.from_team',
             's.id',
@@ -105,11 +109,11 @@ class PortalStatsManageController extends Controller
             's.position',
             's.synced_at'
         )
-        ->orderBy($sort, $dir)
+        ->orderBy($orderColumn, $dir)
         ->limit($limit)
         ->get();
 
-        return view('portal.stats', [
+        return view('portal.stats-manage', [
             'players' => $players,
             'season' => $season,
             'limit' => $limit,
@@ -124,5 +128,14 @@ class PortalStatsManageController extends Controller
         return redirect()
             ->back()
             ->with('success', 'Stat record deleted.');
+    }
+    
+    public function destroyEvent(int $id)
+    {
+        DB::table('portal_events')->where('id', $id)->delete();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Portal event deleted.');
     }
 }

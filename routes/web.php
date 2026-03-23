@@ -15,5 +15,5 @@ Route::get('/portal-stats', [PortalStatsController::class, 'index']);
 
 
 Route::get('/portal-stats-manage', [PortalStatsManageController::class, 'index']);
-Route::delete('/portal-stats-manage/{id}', [PortalStatsManageController::class, 'destroy'])
-    ->name('portal-stats-manage.destroy');
+Route::delete('/portal-stats-manage/event/{id}', [PortalStatsManageController::class, 'destroyEvent'])
+    ->name('portal-stats-manage.destroy-event');

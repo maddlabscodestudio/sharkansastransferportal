@@ -135,6 +135,32 @@ class PortalSyncPlayerStats extends Command
                 'steals' => $match['Steals'] ?? null,
                 'blocked_shots' => $match['BlockedShots'] ?? null,
                 'turnovers' => $match['Turnovers'] ?? null,
+                'field_goals_made' => $match['FieldGoalsMade'] ?? null,
+                'field_goals_attempted' => $match['FieldGoalsAttempted'] ?? null,
+
+                'two_pointers_made' => $match['TwoPointersMade'] ?? null,
+                'two_pointers_attempted' => $match['TwoPointersAttempted'] ?? null,
+                'two_pointers_percentage' => $match['TwoPointersPercentage'] ?? null,
+
+                'three_pointers_made' => $match['ThreePointersMade'] ?? null,
+                'three_pointers_attempted' => $match['ThreePointersAttempted'] ?? null,
+
+                'free_throws_made' => $match['FreeThrowsMade'] ?? null,
+                'free_throws_attempted' => $match['FreeThrowsAttempted'] ?? null,
+
+                'offensive_rebounds' => $match['OffensiveRebounds'] ?? null,
+                'defensive_rebounds' => $match['DefensiveRebounds'] ?? null,
+
+                'personal_fouls' => $match['PersonalFouls'] ?? null,
+
+                'effective_field_goals_percentage' => $match['EffectiveFieldGoalsPercentage'] ?? null,
+                'offensive_rebounds_percentage' => $match['OffensiveReboundsPercentage'] ?? null,
+                'defensive_rebounds_percentage' => $match['DefensiveReboundsPercentage'] ?? null,
+                'total_rebounds_percentage' => $match['TotalReboundsPercentage'] ?? null,
+                'assists_percentage' => $match['AssistsPercentage'] ?? null,
+                'steals_percentage' => $match['StealsPercentage'] ?? null,
+                'blocks_percentage' => $match['BlocksPercentage'] ?? null,
+                'turnovers_percentage' => $match['TurnOversPercentage'] ?? null,
                 'field_goals_percentage' => $match['FieldGoalsPercentage'] ?? null,
                 'three_pointers_percentage' => $match['ThreePointersPercentage'] ?? null,
                 'free_throws_percentage' => $match['FreeThrowsPercentage'] ?? null,
