@@ -50,8 +50,6 @@ class PortalStatsManageController extends Controller
                     ->where('s.season', '=', $season);
             });
 
-        $query->whereNotNull('s.id');
-
         if ($missingOnly) {
             $query->where(function ($q) {
                 $q->whereNull('s.id')

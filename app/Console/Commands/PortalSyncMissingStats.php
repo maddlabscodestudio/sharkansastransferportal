@@ -20,19 +20,27 @@ class PortalSyncMissingStats extends Command
 
         $this->info("Syncing missing stats for season {$season}...");
 
-        // Get distinct players from portal_events that don't have stats yet
+        // Get distinct players from portal_events whose stats row is missing or incomplete
         $players = DB::table('portal_events as e')
-        ->leftJoin('player_season_stats as s', function ($join) use ($season) {
-            $join->on('e.player_name', '=', 's.player_name')
-                ->where('s.season', '=', $season);
-        })
-        ->whereNull('s.id')
-        ->select('e.player_name', 'e.from_team', DB::raw('MAX(e.first_reported_at) as latest_reported_at'))
-        ->groupBy('e.player_name', 'e.from_team')
-        ->orderByDesc('latest_reported_at')
-        ->limit($limit)
-        ->get();
-
+            ->leftJoin('player_season_stats as s', function ($join) use ($season) {
+                $join->on('e.player_name', '=', 's.player_name')
+                    ->where('s.season', '=', $season);
+            })
+            ->where(function ($q) {
+                $q->whereNull('s.id')
+                ->orWhereNull('s.field_goals_made')
+                ->orWhereNull('s.field_goals_attempted')
+                ->orWhereNull('s.effective_field_goals_percentage');
+            })
+            ->select(
+                'e.player_name',
+                'e.from_team',
+                DB::raw('MAX(e.first_reported_at) as latest_reported_at')
+            )
+            ->groupBy('e.player_name', 'e.from_team')
+            ->orderByDesc('latest_reported_at')
+            ->limit($limit)
+            ->get();
         if ($players->isEmpty()) {
             $this->info('No missing players found.');
             return self::SUCCESS;
@@ -67,18 +75,10 @@ class PortalSyncMissingStats extends Command
             $teamKey = $matchedTeam['Key'] ?? null;
 
             // Match player
-            $match = $rows->first(function ($row) use ($normalizedPlayer, $teamKey) {
-                $rowName = $this->normalize($row['Name'] ?? '');
-                $rowTeam = strtoupper(trim((string) ($row['Team'] ?? '')));
-
-                $nameMatch = $rowName === $normalizedPlayer;
-                $teamMatch = $teamKey ? $rowTeam === strtoupper($teamKey) : true;
-
-                return $nameMatch && $teamMatch;
-            });
+            $match = $this->findPlayerMatch($rows, $player, $teamKey);
 
             if (!$match) {
-                $this->warn("No match for {$player}");
+                $this->warn("No match for {$player} ({$team})");
                 continue;
             }
 
@@ -89,7 +89,7 @@ class PortalSyncMissingStats extends Command
                     'season_type' => $match['SeasonType'] ?? null,
                 ],
                 [
-                    'player_name' => $match['Name'] ?? null,
+                    'player_name' => $player,
                     'team_key' => $match['Team'] ?? null,
                     'team_name' => $team,
                     'sportsdataio_team_id' => $match['TeamID'] ?? null,
@@ -148,8 +148,84 @@ class PortalSyncMissingStats extends Command
 
     private function normalize(string $value): string
     {
-        $value = strtolower(trim($value));
+        $value = trim($value);
+
+        $ascii = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+        if ($ascii !== false) {
+            $value = $ascii;
+        }
+
+        $value = strtolower($value);
+        $value = str_replace(['’', '`', '´'], "'", $value);
+        $value = preg_replace('/\b(jr|sr|ii|iii|iv|v)\b\.?/i', '', $value);
         $value = preg_replace('/[^a-z0-9]+/', ' ', $value);
-        return trim($value);
+
+        return trim(preg_replace('/\s+/', ' ', $value));
+    }
+
+    private function namesMatch(string $player, string $apiName): bool
+    {
+        $playerNorm = $this->normalize($player);
+        $apiNorm = $this->normalize($apiName);
+
+        if ($playerNorm === $apiNorm) {
+            return true;
+        }
+
+        $playerParts = preg_split('/\s+/', $playerNorm);
+        $apiParts = preg_split('/\s+/', $apiNorm);
+
+        if (!$playerParts || !$apiParts) {
+            return false;
+        }
+
+        $playerLast = end($playerParts);
+        $apiLast = end($apiParts);
+
+        if ($playerLast !== $apiLast) {
+            return false;
+        }
+
+        $playerFirst = $playerParts[0] ?? '';
+        $apiFirst = $apiParts[0] ?? '';
+
+        $playerInitial = substr($playerFirst, 0, 1);
+        $apiInitial = substr($apiFirst, 0, 1);
+
+        if ($playerInitial !== '' && $playerInitial === $apiInitial) {
+            return true;
+        }
+
+        $playerNoSpaces = str_replace(' ', '', $playerNorm);
+        $apiNoSpaces = str_replace(' ', '', $apiNorm);
+
+        if ($playerNoSpaces === $apiNoSpaces) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function findPlayerMatch($rows, string $player, ?string $teamKey)
+    {
+            $exact = $rows->first(function ($row) use ($player, $teamKey) {
+                $rowName = $this->normalize($row['Name'] ?? '');
+                $playerNorm = $this->normalize($player);
+                $rowTeam = strtoupper(trim((string) ($row['Team'] ?? '')));
+                $teamMatch = $teamKey ? $rowTeam === strtoupper($teamKey) : true;
+
+                return $teamMatch && $rowName === $playerNorm;
+            });
+
+        if ($exact) {
+            return $exact;
+        }
+
+        return $rows->first(function ($row) use ($player, $teamKey) {
+            $rowTeam = strtoupper(trim((string) ($row['Team'] ?? '')));
+            $teamMatch = $teamKey ? $rowTeam === strtoupper($teamKey) : true;
+
+            return $teamMatch && $this->namesMatch($player, $row['Name'] ?? '');
+        });
     }
 }

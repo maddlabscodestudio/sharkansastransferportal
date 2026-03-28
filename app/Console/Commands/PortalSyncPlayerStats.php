@@ -121,7 +121,7 @@ class PortalSyncPlayerStats extends Command
                 'season_type' => $match['SeasonType'] ?? null,
             ],
             [
-                'player_name' => $match['Name'] ?? null,
+                'player_name' => $player,
                 'team_key' => $match['Team'] ?? null,
                 'team_name' => $team,
                 'sportsdataio_team_id' => $match['TeamID'] ?? null,

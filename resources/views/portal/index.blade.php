@@ -1,12 +1,7 @@
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sharkansas Portal Feed</title>
-    @vite(['resources/css/app.css','resources/js/app.js'])
-</head>
-<body class="bg-gray-50 text-gray-900">
+@extends('layouts.app')
+
+@section('content')
+
 <div class="max-w-6xl mx-auto p-6">
     <div class="flex items-end justify-between gap-4 flex-wrap">
         <div>
@@ -101,5 +96,4 @@
         </table>
     </div>
 </div>
-</body>
-</html>
+@endsection

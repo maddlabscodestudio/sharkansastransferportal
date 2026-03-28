@@ -1,12 +1,7 @@
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sharkansas Portal Stats</title>
-    @vite(['resources/css/app.css','resources/js/app.js'])
-</head>
-<body class="bg-slate-100 text-slate-900">
+@extends('layouts.app')
+
+@section('content')
+
 <div class="max-w-8xl mx-auto p-6">
     @php
         $currentSort = request('sort', 'first_reported_at');
@@ -59,41 +54,20 @@
             ]);
         }
     @endphp
-    <div class="sticky top-0 z-20 bg-slate-100 pb-4">
+    <div class="sticky top-0 z-20 bg-white pb-4">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-[#0B1F2D]">
+                TRANSFER PORTAL STATS
+            </h1>
 
+            <p class="mt-3 text-slate-600 text-sm">
+                Powered by 
+                <a href="https://maddlabs.dev" target="_blank" class="text-[#00889c] hover:text-[#40cbd9] transition">
+                    MaddLabs
+                </a>
+            </p>
 
-        <div class="flex items-end justify-between gap-4 flex-wrap mb-6">
-            <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Portal Stats</h1>
-                <p class="text-sm text-slate-600">Sortable transfer portal stats dashboard</p>
-            </div>
-
-            <form class="flex gap-2 flex-wrap" method="get" action="/portal-stats">
-                <input
-                    type="number"
-                    name="season"
-                    value="{{ $season }}"
-                    class="border rounded px-3 py-2 text-sm w-28"
-                />
-
-                <input
-                    type="number"
-                    name="limit"
-                    value="{{ $limit }}"
-                    min="1"
-                    max="500"
-                    class="border rounded px-3 py-2 text-sm w-24"
-                />
-
-                <select name="missing" class="border rounded px-3 py-2 text-sm">
-                    <option value="">All players</option>
-                    <option value="1" @selected(request('missing') == 1)>Missing stats only</option>
-                </select>
-
-                <button class="bg-blue-700 hover:bg-blue-800 text-white rounded px-4 py-2 text-sm font-medium transition">
-                    Filter
-                </button>
-            </form>
+            <div class="mt-4 w-24 h-[2px] bg-[#00889c] mx-auto"></div>
         </div>
     </div>
 
@@ -102,12 +76,37 @@
         <table class="w-full table-fixed md:table-auto min-w-[320px] md:min-w-[900px] text-sm">
             <thead class="sticky top-0 z-10 bg-slate-800 text-slate-100 text-center text-xs uppercase tracking-wider">
                 <tr>
-                    <th class="sticky left-0 z-20 bg-slate-800 px-2 py-2 w-[112px] min-w-[112px] max-w-[112px] md:w-auto md:min-w-[180px] md:max-w-none">
-                        <a href="{{ sortUrl('player_name', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('player_name', $currentSort) }}">
-                            <span>Player</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('player_name', $currentSort, $currentDir) }}</span>
-                        </a>
+                    <th class="sticky left-0 z-20 bg-slate-800 px-2 py-2 w-[112px] min-w-[112px] max-w-[112px] md:w-auto md:min-w-[180px] md:max-w-none relative">
+                        <div class="flex items-center gap-2">
+                            <a href="{{ sortUrl('player_name', $currentSort, $currentDir) }}" class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('player_name', $currentSort) }}">
+                                <span>Player</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('player_name', $currentSort, $currentDir) }}</span>
+                            </a>
+
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-player')">⌕</button>
+                        </div>
+
+                        <div id="filter-player" class="hidden absolute left-0 top-full mt-2 w-56 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="position" value="{{ $position ?? '' }}">
+                                <input type="hidden" name="min_ppg" value="{{ $minPpg ?? '' }}">
+                                <input type="hidden" name="min_3p" value="{{ $min3p ?? '' }}">
+
+                                <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Player or team" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100">
+
+                                <div class="flex gap-2">
+                                    <button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">
+                                        Apply
+                                    </button>
+                                    <a href="/portal-stats?limit={{ $limit }}&sort={{ $currentSort }}&dir={{ $currentDir }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">
+                                        Clear
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
                     </th>
 
                     <!-- <th class="px-3 py-2 min-w-[120px]">
@@ -121,12 +120,38 @@
                     <th class="px-2 py-2 text-center w-[64px] min-w-[64px] max-w-[64px] md:w-auto md:min-w-[90px] md:max-w-none">Signals</th>
 
 
-                    <th class="px-2 py-2 text-right w-[56px] min-w-[56px] max-w-[56px] md:w-auto md:min-w-[72px] md:max-w-none">
-                        <a href="{{ sortUrl('ppg', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('ppg', $currentSort) }}">
-                            <span>PPG</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('ppg', $currentSort, $currentDir) }}</span>
-                        </a>
+                    <th class="px-2 py-2 text-right w-[56px] min-w-[56px] max-w-[56px] md:w-auto md:min-w-[72px] md:max-w-none relative">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{{ sortUrl('ppg', $currentSort, $currentDir) }}"
+                            class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('ppg', $currentSort) }}">
+                                <span>PPG</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('ppg', $currentSort, $currentDir) }}</span>
+                            </a>
+
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-ppg')" >⌕</button>
+                        </div>
+
+                        <div id="filter-ppg" class="hidden absolute right-0 top-full mt-2 w-40 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                <input type="hidden" name="position" value="{{ $position ?? '' }}">
+                                <input type="hidden" name="min_3p" value="{{ $min3p ?? '' }}">
+
+                                <input type="number" step="0.1" name="min_ppg" value="{{ $minPpg ?? '' }}" placeholder="Min PPG" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100">
+
+                                <div class="flex gap-2">
+                                    <button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">
+                                        Apply
+                                    </button>
+                                    <a href="{{ request()->fullUrlWithQuery(['min_ppg' => null]) }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">
+                                        Clear
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
                     </th>
 
                     <th class="hidden md:table-cell px-3 py-2 text-center">
@@ -145,68 +170,295 @@
                         </a>
                     </th>
 
-                    <th class="hidden md:table-cell px-3 py-2 text-center">
-                        <a href="{{ sortUrl('mpg', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('mpg', $currentSort) }}">
-                            <span>MPG</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('mpg', $currentSort, $currentDir) }}</span>
-                        </a>
+                    <th class="hidden md:table-cell px-3 py-2 text-center relative">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ sortUrl('mpg', $currentSort, $currentDir) }}"
+                            class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('mpg', $currentSort) }}">
+                                <span>MPG</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('mpg', $currentSort, $currentDir) }}</span>
+                            </a>
+
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-mpg')">⌕</button>
+                        </div>
+
+                        <div id="filter-mpg" class="hidden absolute right-0 top-full mt-2 w-40 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg z-30">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                <input type="hidden" name="position" value="{{ $position ?? '' }}">
+                                <input type="hidden" name="min_ppg" value="{{ $minPpg ?? '' }}">
+                                <input type="hidden" name="min_3p" value="{{ $min3p ?? '' }}">
+
+                                <input type="number" step="0.1" name="min_mpg" value="{{ $minMpg ?? '' }}" placeholder="Min MPG" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100">
+
+                                <div class="flex gap-2">
+                                    <button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">
+                                        Apply
+                                    </button>
+                                    <a href="{{ request()->fullUrlWithQuery(['min_mpg' => null]) }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">
+                                        Clear
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
                     </th>
 
-                    <th class="hidden md:table-cell px-3 py-2 text-center">
-                        <a href="{{ sortUrl('rpg', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('rpg', $currentSort) }}">
-                            <span>RPG</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('rpg', $currentSort, $currentDir) }}</span>
-                        </a>
+                    <th class="hidden md:table-cell px-3 py-2 text-center relative">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ sortUrl('rpg', $currentSort, $currentDir) }}"
+                            class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('rpg', $currentSort) }}">
+                                <span>RPG</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('rpg', $currentSort, $currentDir) }}</span>
+                            </a>
+
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-rpg')">⌕</button>
+                        </div>
+
+                        <div id="filter-rpg" class="hidden absolute right-0 top-full mt-2 w-40 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg z-30">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                <input type="hidden" name="position" value="{{ $position ?? '' }}">
+                                <input type="hidden" name="min_ppg" value="{{ $minPpg ?? '' }}">
+                                <input type="hidden" name="min_mpg" value="{{ $minMpg ?? '' }}">
+                                <input type="hidden" name="min_3p" value="{{ $min3p ?? '' }}">
+
+                                <input type="number" step="0.1" name="min_rpg" value="{{ $minRpg ?? '' }}" placeholder="Min RPG" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100">
+
+                                <div class="flex gap-2">
+                                    <button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">
+                                        Apply
+                                    </button>
+                                    <a href="{{ request()->fullUrlWithQuery(['min_rpg' => null]) }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">
+                                        Clear
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
                     </th>
 
-                    <th class="hidden md:table-cell px-3 py-2 text-center">
-                        <a href="{{ sortUrl('apg', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('apg', $currentSort) }}">
-                            <span>APG</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('apg', $currentSort, $currentDir) }}</span>
-                        </a>
+                    <th class="hidden md:table-cell px-3 py-2 text-center relative">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ sortUrl('apg', $currentSort, $currentDir) }}"
+                            class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('apg', $currentSort) }}">
+                                <span>APG</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('apg', $currentSort, $currentDir) }}</span>
+                            </a>
+
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-apg')">⌕</button>
+                        </div>
+
+                        <div id="filter-apg" class="hidden absolute right-0 top-full mt-2 w-40 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg z-30">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                <input type="hidden" name="position" value="{{ $position ?? '' }}">
+                                <input type="hidden" name="min_ppg" value="{{ $minPpg ?? '' }}">
+                                <input type="hidden" name="min_mpg" value="{{ $minMpg ?? '' }}">
+                                <input type="hidden" name="min_rpg" value="{{ $minRpg ?? '' }}">
+                                <input type="hidden" name="min_3p" value="{{ $min3p ?? '' }}">
+
+                                <input type="number" step="0.1" name="min_apg" value="{{ $minApg ?? '' }}" placeholder="Min APG" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100">
+
+                                <div class="flex gap-2">
+                                    <button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">
+                                        Apply
+                                    </button>
+                                    <a href="{{ request()->fullUrlWithQuery(['min_apg' => null]) }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">
+                                        Clear
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
                     </th>
 
-                    <th class="hidden md:table-cell px-3 py-2 text-center">
-                        <a href="{{ sortUrl('spg', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('spg', $currentSort) }}">
-                            <span>SPG</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('spg', $currentSort, $currentDir) }}</span>
-                        </a>
+                    <th class="hidden md:table-cell px-3 py-2 text-center relative">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ sortUrl('spg', $currentSort, $currentDir) }}"
+                            class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('spg', $currentSort) }}">
+                                <span>SPG</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('spg', $currentSort, $currentDir) }}</span>
+                            </a>
+
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-spg')">⌕</button>
+                        </div>
+
+                        <div id="filter-spg" class="hidden absolute right-0 top-full mt-2 w-40 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg z-30">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                <input type="hidden" name="position" value="{{ $position ?? '' }}">
+                                <input type="hidden" name="min_ppg" value="{{ $minPpg ?? '' }}">
+                                <input type="hidden" name="min_mpg" value="{{ $minMpg ?? '' }}">
+                                <input type="hidden" name="min_rpg" value="{{ $minRpg ?? '' }}">
+                                <input type="hidden" name="min_apg" value="{{ $minApg ?? '' }}">
+                                <input type="hidden" name="min_3p" value="{{ $min3p ?? '' }}">
+
+                                <input type="number" step="0.1" name="min_spg" value="{{ $minSpg ?? '' }}" placeholder="Min SPG" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100" >
+
+                                <div class="flex gap-2">
+                                    <button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">
+                                        Apply
+                                    </button>
+                                    <a href="{{ request()->fullUrlWithQuery(['min_spg' => null]) }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">
+                                        Clear
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
                     </th>
 
-                    <th class="hidden md:table-cell px-3 py-2 text-center">
-                        <a href="{{ sortUrl('bpg', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('bpg', $currentSort) }}">
-                            <span>BPG</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('bpg', $currentSort, $currentDir) }}</span>
-                        </a>
+                    <th class="hidden md:table-cell px-3 py-2 text-center relative">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ sortUrl('bpg', $currentSort, $currentDir) }}"
+                            class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('bpg', $currentSort) }}">
+                                <span>BPG</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('bpg', $currentSort, $currentDir) }}</span>
+                            </a>
+
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-bpg')" >⌕</button>
+                        </div>
+
+                        <div id="filter-bpg" class="hidden absolute right-0 top-full mt-2 w-40 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg z-30">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                <input type="hidden" name="position" value="{{ $position ?? '' }}">
+                                <input type="hidden" name="min_ppg" value="{{ $minPpg ?? '' }}">
+                                <input type="hidden" name="min_mpg" value="{{ $minMpg ?? '' }}">
+                                <input type="hidden" name="min_rpg" value="{{ $minRpg ?? '' }}">
+                                <input type="hidden" name="min_apg" value="{{ $minApg ?? '' }}">
+                                <input type="hidden" name="min_spg" value="{{ $minSpg ?? '' }}">
+                                <input type="hidden" name="min_3p" value="{{ $min3p ?? '' }}">
+
+                                <input type="number" step="0.1" name="min_bpg" value="{{ $minBpg ?? '' }}" placeholder="Min BPG" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100">
+
+                                <div class="flex gap-2">
+                                    <button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">
+                                        Apply
+                                    </button>
+                                    <a href="{{ request()->fullUrlWithQuery(['min_bpg' => null]) }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">
+                                        Clear
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </th>
+                    
+                    <th class="hidden md:table-cell px-3 py-2 text-center relative">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ sortUrl('tovpg', $currentSort, $currentDir) }}"
+                            class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('tovpg', $currentSort) }}">
+                                <span>TOPG</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('tovpg', $currentSort, $currentDir) }}</span>
+                            </a>
+
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-topg')" >⌕</button>
+                        </div>
+
+                        <div id="filter-topg" class="hidden absolute right-0 top-full mt-2 w-40 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg z-30">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                <input type="hidden" name="position" value="{{ $position ?? '' }}">
+                                <input type="hidden" name="min_ppg" value="{{ $minPpg ?? '' }}">
+                                <input type="hidden" name="min_mpg" value="{{ $minMpg ?? '' }}">
+                                <input type="hidden" name="min_rpg" value="{{ $minRpg ?? '' }}">
+                                <input type="hidden" name="min_apg" value="{{ $minApg ?? '' }}">
+                                <input type="hidden" name="min_spg" value="{{ $minSpg ?? '' }}">
+                                <input type="hidden" name="min_bpg" value="{{ $minBpg ?? '' }}">
+                                <input type="hidden" name="min_3p" value="{{ $min3p ?? '' }}">
+
+                                <input type="number" step="0.1" name="max_topg" value="{{ $maxTopg ?? '' }}" placeholder="Max TOPG" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100" >
+
+                                <div class="flex gap-2">
+                                    <button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">
+                                        Apply
+                                    </button>
+                                    <a href="{{ request()->fullUrlWithQuery(['max_topg' => null]) }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">
+                                        Clear
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
                     </th>
 
-                    <th class="hidden md:table-cell px-3 py-2 text-center">
-                        <a href="{{ sortUrl('tovpg', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('tovpg', $currentSort) }}">
-                            <span>TOPG</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('tovpg', $currentSort, $currentDir) }}</span>
-                        </a>
+                    <th class="hidden md:table-cell px-3 py-2 text-center relative">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ sortUrl('field_goals_percentage', $currentSort, $currentDir) }}"
+                            class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('field_goals_percentage', $currentSort) }}">
+                                <span>FG%</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('field_goals_percentage', $currentSort, $currentDir) }}</span>
+                            </a>
+
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-fg')" >⌕</button>
+                        </div>
+
+                        <div id="filter-fg" class="hidden absolute right-0 top-full mt-2 w-40 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg z-30">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                <input type="hidden" name="position" value="{{ $position ?? '' }}">
+                                <input type="hidden" name="min_ppg" value="{{ $minPpg ?? '' }}">
+                                <input type="hidden" name="min_mpg" value="{{ $minMpg ?? '' }}">
+                                <input type="hidden" name="min_rpg" value="{{ $minRpg ?? '' }}">
+                                <input type="hidden" name="min_apg" value="{{ $minApg ?? '' }}">
+                                <input type="hidden" name="min_spg" value="{{ $minSpg ?? '' }}">
+                                <input type="hidden" name="min_bpg" value="{{ $minBpg ?? '' }}">
+                                <input type="hidden" name="min_3p" value="{{ $min3p ?? '' }}">
+                                <input type="hidden" name="max_topg" value="{{ $maxTopg ?? '' }}">
+
+                                <input type="number" step="0.1" name="min_fg" value="{{ $minFg ?? '' }}" placeholder="Min FG%" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100">
+
+                                <div class="flex gap-2"><button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">Apply</button><a href="{{ request()->fullUrlWithQuery(['min_fg' => null]) }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">Clear</a></div>
+                            </form>
+                        </div>
                     </th>
 
-                    <th class="hidden md:table-cell px-3 py-2 text-center">
-                        <a href="{{ sortUrl('field_goals_percentage', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('field_goals_percentage', $currentSort) }}">
-                            <span>FG%</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('field_goals_percentage', $currentSort, $currentDir) }}</span>
-                        </a>
-                    </th>
+                    <th class="hidden md:table-cell px-3 py-2 text-center relative">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ sortUrl('three_pointers_percentage', $currentSort, $currentDir) }}" class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('three_pointers_percentage', $currentSort) }}">
+                                <span>3PT%</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('three_pointers_percentage', $currentSort, $currentDir) }}</span>
+                            </a>
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-3pt')">⌕</button>
+                        </div>
 
-                    <th class="hidden md:table-cell px-3 py-2 text-center">
-                        <a href="{{ sortUrl('three_pointers_percentage', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('three_pointers_percentage', $currentSort) }}">
-                            <span>3PT%</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('three_pointers_percentage', $currentSort, $currentDir) }}</span>
-                        </a>
+                        <div id="filter-3pt" class="hidden absolute right-0 top-full mt-2 w-40 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg z-30">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                <input type="hidden" name="position" value="{{ $position ?? '' }}">
+                                <input type="hidden" name="min_ppg" value="{{ $minPpg ?? '' }}">
+                                <input type="hidden" name="min_mpg" value="{{ $minMpg ?? '' }}">
+                                <input type="hidden" name="min_rpg" value="{{ $minRpg ?? '' }}">
+                                <input type="hidden" name="min_apg" value="{{ $minApg ?? '' }}">
+                                <input type="hidden" name="min_spg" value="{{ $minSpg ?? '' }}">
+                                <input type="hidden" name="min_bpg" value="{{ $minBpg ?? '' }}">
+                                <input type="hidden" name="min_fg" value="{{ $minFg ?? '' }}">
+                                <input type="hidden" name="max_topg" value="{{ $maxTopg ?? '' }}">
+
+                                <input type="number" step="0.1" name="min_3p" value="{{ $min3p ?? '' }}" placeholder="Min 3PT%" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100">
+
+                                <div class="flex gap-2 items-center"><button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">Apply</button><a href="{{ request()->fullUrlWithQuery(['min_3p' => null]) }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">Clear</a></div>
+                            </form>
+                        </div>
                     </th>
 
                     <th class="hidden md:table-cell px-3 py-2 text-center">
@@ -539,4 +791,21 @@
         }
     }
 </script>
-</html>
+
+<script>
+    function toggleFilterPopup(id) {
+        document.querySelectorAll('[id^="filter-"]').forEach(el => {
+            if (el.id !== id) el.classList.add('hidden');
+        });
+
+        document.getElementById(id).classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('th.relative')) {
+            document.querySelectorAll('[id^="filter-"]').forEach(el => el.classList.add('hidden'));
+        }
+    });
+</script>
+
+@endsection
