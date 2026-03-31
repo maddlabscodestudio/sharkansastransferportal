@@ -54,8 +54,8 @@
             ]);
         }
     @endphp
-    <div class="sticky top-0 z-20 bg-white pb-4">
-        <div class="text-center mb-10">
+    <div class="sticky top-0 z-20 bg-white pb-2">
+        <div class="text-center mb-6">
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-[#0B1F2D]">
                 TRANSFER PORTAL STATS
             </h1>
@@ -648,13 +648,13 @@
                                     <div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
                                         <h4 class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">Shooting Volume</h4>
                                         <div class="grid grid-cols-2 gap-3 text-sm text-slate-200">
-                                            <div><div class="text-slate-400">FG</div><div>{{ $p->field_goals_made ?? '—' }}/{{ $p->field_goals_attempted ?? '—' }}</div></div>
+                                            <div><div class="text-slate-400">FTA/G</div><div>{{ ($p->games && $p->free_throws_attempted !== null) ? round($p->free_throws_attempted / $p->games, 1) : '—' }}</div></div>
                                             <div><div class="text-slate-400">2PT</div><div>{{ $p->two_pointers_made ?? '—' }}/{{ $p->two_pointers_attempted ?? '—' }}</div></div>
                                             <div><div class="text-slate-400">3PT</div><div>{{ $p->three_pointers_made ?? '—' }}/{{ $p->three_pointers_attempted ?? '—' }}</div></div>
                                             <div><div class="text-slate-400">FT</div><div>{{ $p->free_throws_made ?? '—' }}/{{ $p->free_throws_attempted ?? '—' }}</div></div>
                                             <div><div class="text-slate-400">FGA/G</div><div>{{ ($p->games && $p->field_goals_attempted !== null) ? round($p->field_goals_attempted / $p->games, 1) : '—' }}</div></div>
                                             <div><div class="text-slate-400">3PA/G</div><div>{{ ($p->games && $p->three_pointers_attempted !== null) ? round($p->three_pointers_attempted / $p->games, 1) : '—' }}</div></div>
-                                            <div class="col-span-2"><div class="text-slate-400">FTA/G</div><div>{{ ($p->games && $p->free_throws_attempted !== null) ? round($p->free_throws_attempted / $p->games, 1) : '—' }}</div></div>
+                                            <div class="col-span-2"><div class="text-slate-400">FG</div><div>{{ $p->field_goals_made ?? '—' }}/{{ $p->field_goals_attempted ?? '—' }}</div></div>
                                         </div>
                                     </div>
 
@@ -711,13 +711,13 @@
                                         <div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
                                             <h4 class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">Shooting Volume</h4>
                                             <div class="grid grid-cols-2 gap-3 text-sm text-slate-200">
-                                                <div><div class="text-slate-400">FG</div><div>{{ $p->field_goals_made ?? '—' }}/{{ $p->field_goals_attempted ?? '—' }}</div></div>
-                                                <div><div class="text-slate-400">2PT</div><div>{{ $p->two_pointers_made ?? '—' }}/{{ $p->two_pointers_attempted ?? '—' }}</div></div>
-                                                <div><div class="text-slate-400">3PT</div><div>{{ $p->three_pointers_made ?? '—' }}/{{ $p->three_pointers_attempted ?? '—' }}</div></div>
-                                                <div><div class="text-slate-400">FT</div><div>{{ $p->free_throws_made ?? '—' }}/{{ $p->free_throws_attempted ?? '—' }}</div></div>
                                                 <div><div class="text-slate-400">FGA/G</div><div>{{ ($p->games && $p->field_goals_attempted !== null) ? round($p->field_goals_attempted / $p->games, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">2PT</div><div>{{ $p->field_goals_made ?? '—' }}/{{ $p->field_goals_attempted ?? '—' }}</div></div>
                                                 <div><div class="text-slate-400">3PA/G</div><div>{{ ($p->games && $p->three_pointers_attempted !== null) ? round($p->three_pointers_attempted / $p->games, 1) : '—' }}</div></div>
-                                                <div class="col-span-2"><div class="text-slate-400">FTA/G</div><div>{{ ($p->games && $p->free_throws_attempted !== null) ? round($p->free_throws_attempted / $p->games, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">3PT</div><div>{{ $p->three_pointers_made ?? '—' }}/{{ $p->three_pointers_attempted ?? '—' }}</div></div>
+                                                <div><div class="text-slate-400">FTA/G</div><div>{{ ($p->games && $p->free_throws_attempted !== null) ? round($p->free_throws_attempted / $p->games, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">FT</div><div>{{ $p->free_throws_made ?? '—' }}/{{ $p->free_throws_attempted ?? '—' }}</div></div>
+                                                <div class="col-span-2"><div class="text-slate-400">2PT</div><div>{{ $p->two_pointers_made ?? '—' }}/{{ $p->two_pointers_attempted ?? '—' }}</div></div>
                                             </div>
                                         </div>
 
@@ -759,7 +759,12 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="18" class="p-6 text-center text-gray-500">No portal players found.</td>
+                        <td colspan="18" class="py-20 text-left text-gray-500" style="padding: 25px;">
+                            <div class="flex flex-col items-left justify-left gap-3">
+                                <div class="text-lg font-semibold">No portal players found</div>
+                                <div class="text-sm text-gray-400">Try adjusting your filters</div>
+                            </div>
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
