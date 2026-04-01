@@ -55,15 +55,6 @@
                     class="border rounded px-3 py-2 text-sm w-28"
                 />
 
-                <input
-                    type="number"
-                    name="limit"
-                    value="{{ $limit }}"
-                    min="1"
-                    max="500"
-                    class="border rounded px-3 py-2 text-sm w-24"
-                />
-
                 <select name="missing" class="border rounded px-3 py-2 text-sm">
                     <option value="">All players</option>
                     <option value="1" @selected($missingOnly)>Missing stats only</option>

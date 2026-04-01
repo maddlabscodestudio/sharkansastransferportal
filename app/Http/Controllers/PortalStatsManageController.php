@@ -11,7 +11,6 @@ class PortalStatsManageController extends Controller
     public function index(Request $request)
     {
         $season = (int) $request->get('season', 2026);
-        $limit = min((int) $request->get('limit', 100), 500);
         $missingOnly = (string) $request->get('missing', '') === '1';
 
         $sort = $request->get('sort', 'first_reported_at');
@@ -46,9 +45,9 @@ class PortalStatsManageController extends Controller
 
         $query = DB::table('portal_events as e')
             ->leftJoin('player_season_stats as s', function ($join) use ($season) {
-                $join->on('e.player_name', '=', 's.player_name')
-                    ->where('s.season', '=', $season);
-            });
+            $join->on('e.sportsdataio_player_id', '=', 's.sportsdataio_player_id')
+                ->where('s.season', '=', $season);
+        });
 
         if ($missingOnly) {
             $query->where(function ($q) {
@@ -63,6 +62,7 @@ class PortalStatsManageController extends Controller
 
         $players = $query
         ->select(
+            'e.sportsdataio_player_id',
             'e.id as event_id',
             'e.player_name',
             'e.from_team',
@@ -93,6 +93,7 @@ class PortalStatsManageController extends Controller
             DB::raw('CASE WHEN s.games > 0 THEN ROUND(1.0 * s.turnovers / s.games, 1) END as tovpg')
         )
         ->groupBy(
+            'e.sportsdataio_player_id',
             'e.id',
             'e.player_name',
             'e.from_team',
@@ -115,13 +116,11 @@ class PortalStatsManageController extends Controller
             's.synced_at'
         )
         ->orderBy($orderColumn, $dir)
-        ->limit($limit)
         ->get();
 
         return view('portal.stats-manage', [
             'players' => $players,
             'season' => $season,
-            'limit' => $limit,
             'missingOnly' => $missingOnly,
         ]);
     }

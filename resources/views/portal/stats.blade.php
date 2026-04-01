@@ -4,6 +4,7 @@
 
 <div class="max-w-8xl mx-auto p-6">
     @php
+    
         $currentSort = request('sort', 'first_reported_at');
         $currentDir = request('dir', 'desc');
 
@@ -71,6 +72,16 @@
         </div>
     </div>
 
+    <div class="w-full flex justify-end mb-2">
+        <form method="GET" action="/portal-stats">
+            <input type="hidden" name="sort" value="{{ $currentSort }}">
+            <input type="hidden" name="dir" value="{{ $currentDir }}">
+            <button type="submit"
+                class="inline-flex items-center gap-2 rounded border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-700 transition">
+                Clear Filters
+            </button>
+        </form>
+    </div>
     <div class="mt-6 overflow-x-auto bg-transparent border border-slate-200 rounded-xl shadow-sm">
     <div class="max-h-[80vh] overflow-y-auto overflow-x-auto">
         <table class="w-full table-fixed md:table-auto min-w-[320px] md:min-w-[900px] text-sm">
@@ -154,12 +165,50 @@
                         </div>
                     </th>
 
-                    <th class="hidden md:table-cell px-3 py-2 text-center">
-                        <a href="{{ sortUrl('position', $currentSort, $currentDir) }}"
-                        class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('position', $currentSort) }}">
-                            <span>Pos</span>
-                            <span class="text-[11px] leading-none">{{ sortArrow('position', $currentSort, $currentDir) }}</span>
-                        </a>
+                    <th class="hidden md:table-cell px-3 py-2 text-center relative">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ sortUrl('position', $currentSort, $currentDir) }}"
+                            class="inline-flex items-center gap-1 transition-colors {{ sortHeaderClass('position', $currentSort) }}">
+                                <span>Pos</span>
+                                <span class="text-[11px] leading-none">{{ sortArrow('position', $currentSort, $currentDir) }}</span>
+                            </a>
+
+                            <button type="button" class="text-slate-300 hover:text-white text-xs" onclick="toggleFilterPopup('filter-position')">⌕</button>
+                        </div>
+
+                        <div id="filter-position" class="hidden absolute right-0 top-full mt-2 w-40 rounded border border-slate-700 bg-slate-900 p-3 shadow-lg z-30">
+                            <form method="get" action="/portal-stats" class="space-y-2">
+                                <input type="hidden" name="limit" value="{{ $limit }}">
+                                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                                <input type="hidden" name="dir" value="{{ $currentDir }}">
+                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                <input type="hidden" name="min_ppg" value="{{ $minPpg ?? '' }}">
+                                <input type="hidden" name="min_mpg" value="{{ $minMpg ?? '' }}">
+                                <input type="hidden" name="min_rpg" value="{{ $minRpg ?? '' }}">
+                                <input type="hidden" name="min_apg" value="{{ $minApg ?? '' }}">
+                                <input type="hidden" name="min_spg" value="{{ $minSpg ?? '' }}">
+                                <input type="hidden" name="min_bpg" value="{{ $minBpg ?? '' }}">
+                                <input type="hidden" name="min_fg" value="{{ $minFg ?? '' }}">
+                                <input type="hidden" name="min_3p" value="{{ $min3p ?? '' }}">
+                                <input type="hidden" name="max_topg" value="{{ $maxTopg ?? '' }}">
+
+                                <select name="position" class="w-full rounded border border-slate-600 bg-slate-950 px-2 py-1 text-sm text-slate-100">
+                                    <option value="">All Positions</option>
+                                    <option value="G" {{ ($position ?? '') === 'G' ? 'selected' : '' }}>Guard</option>
+                                    <option value="F" {{ ($position ?? '') === 'F' ? 'selected' : '' }}>Forward</option>
+                                    <option value="C" {{ ($position ?? '') === 'C' ? 'selected' : '' }}>Center</option>
+                                </select>
+
+                                <div class="flex gap-2">
+                                    <button type="submit" class="rounded bg-blue-700 px-3 py-1 text-xs font-medium text-white hover:bg-blue-800">
+                                        Apply
+                                    </button>
+                                    <a href="{{ request()->fullUrlWithQuery(['position' => null]) }}" class="rounded bg-slate-700 px-3 py-1 text-xs text-white hover:bg-slate-600">
+                                        Clear
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
                     </th>
 
                     <th class="hidden md:table-cell px-3 py-2 text-center">
@@ -676,11 +725,11 @@
                                         <h4 class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">Impact & Rates</h4>
                                         <div class="grid grid-cols-2 gap-3 text-sm text-slate-200">
                                             <div><div class="text-slate-400">ORB / DRB</div><div>{{ $p->offensive_rebounds ?? '—' }} / {{ $p->defensive_rebounds ?? '—' }}</div></div>
-                                            <div><div class="text-slate-400">TRB%</div><div>{{ $p->total_rebounds_percentage !== null ? round($p->total_rebounds_percentage, 1) : '—' }}</div></div>
-                                            <div><div class="text-slate-400">AST%</div><div>{{ $p->assists_percentage !== null ? round($p->assists_percentage, 1) : '—' }}</div></div>
-                                            <div><div class="text-slate-400">STL%</div><div>{{ $p->steals_percentage !== null ? round($p->steals_percentage, 1) : '—' }}</div></div>
-                                            <div><div class="text-slate-400">BLK%</div><div>{{ $p->blocks_percentage !== null ? round($p->blocks_percentage, 1) : '—' }}</div></div>
-                                            <div><div class="text-slate-400">TOV%</div><div>{{ $p->turnovers_percentage !== null ? round($p->turnovers_percentage, 1) : '—' }}</div></div>
+                                            <div><div class="text-slate-400">REB/G</div><div>{{ $p->rpg ?? '—' }}</div></div>
+                                            <div><div class="text-slate-400">A/T</div><div>{{ ($p->turnovers !== null && $p->turnovers > 0 && $p->assists !== null) ? round($p->assists / $p->turnovers, 2) : (($p->assists !== null && (int) $p->turnovers === 0) ? '∞' : '—') }}</div></div>
+                                            <div><div class="text-slate-400">TOV/G</div><div>{{ $p->tovpg ?? '—' }}</div></div>
+                                            <div><div class="text-slate-400">STL/G</div><div>{{ $p->spg ?? '—' }}</div></div>
+                                            <div><div class="text-slate-400">BLK/G</div><div>{{ $p->bpg ?? '—' }}</div></div>
                                             <div class="col-span-2"><div class="text-slate-400">Stocks/G</div><div>{{ ($p->games && $p->steals !== null && $p->blocked_shots !== null) ? round(($p->steals + $p->blocked_shots) / $p->games, 1) : '—' }}</div></div>
                                         </div>
                                     </div>
@@ -699,10 +748,21 @@
                                             <h4 class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">Overview</h4>
                                             <div class="space-y-2 text-sm text-slate-200">
                                                 <div><span class="text-slate-400">Player:</span> {{ $p->player_name }}</div>
+                                                @php
+                                                    $heightText = '—';
+
+                                                    if ($p->height !== null && $p->height !== '' && is_numeric($p->height)) {
+                                                        $totalInches = (int) $p->height;
+                                                        $feet = intdiv($totalInches, 12);
+                                                        $inches = $totalInches % 12;
+                                                        $heightText = $feet . "'" . $inches . '"';
+                                                    }
+                                                @endphp
+
+                                                <div><span class="text-slate-400">Size:</span> {{ $heightText }} / {{ $p->weight ? $p->weight . ' lbs' : '—' }}</div>
                                                 <div><span class="text-slate-400">From:</span> {{ $p->from_team }}</div>
                                                 <div><span class="text-slate-400">Position:</span> {{ $p->position ?? '—' }}</div>
                                                 <div><span class="text-slate-400">Games:</span> {{ $p->games ?? '—' }}</div>
-                                                <div><span class="text-slate-400">Minutes:</span> {{ $p->minutes ?? '—' }}</div>
                                                 <div><span class="text-slate-400">MPG:</span> {{ $p->mpg ?? '—' }}</div>
                                                 <div><span class="text-slate-400">PF:</span> {{ $p->personal_fouls ?? '—' }}</div>
                                             </div>
@@ -741,11 +801,11 @@
                                             <h4 class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">Impact & Rates</h4>
                                             <div class="grid grid-cols-2 gap-3 text-sm text-slate-200 md:grid-cols-3">
                                                 <div><div class="text-slate-400">ORB / DRB</div><div>{{ $p->offensive_rebounds ?? '—' }} / {{ $p->defensive_rebounds ?? '—' }}</div></div>
-                                                <div><div class="text-slate-400">TRB%</div><div>{{ $p->total_rebounds_percentage !== null ? round($p->total_rebounds_percentage, 1) : '—' }}</div></div>
-                                                <div><div class="text-slate-400">AST%</div><div>{{ $p->assists_percentage !== null ? round($p->assists_percentage, 1) : '—' }}</div></div>
-                                                <div><div class="text-slate-400">STL%</div><div>{{ $p->steals_percentage !== null ? round($p->steals_percentage, 1) : '—' }}</div></div>
-                                                <div><div class="text-slate-400">BLK%</div><div>{{ $p->blocks_percentage !== null ? round($p->blocks_percentage, 1) : '—' }}</div></div>
-                                                <div><div class="text-slate-400">TOV%</div><div>{{ $p->turnovers_percentage !== null ? round($p->turnovers_percentage, 1) : '—' }}</div></div>
+                                                <div><div class="text-slate-400">REB/G</div><div>{{ $p->rpg ?? '—' }}</div></div>
+                                                <div><div class="text-slate-400">A/T</div><div>{{ ($p->turnovers !== null && $p->turnovers > 0 && $p->assists !== null) ? round($p->assists / $p->turnovers, 2) : (($p->assists !== null && (int) $p->turnovers === 0) ? '∞' : '—') }}</div></div>
+                                                <div><div class="text-slate-400">TOV/G</div><div>{{ $p->tovpg ?? '—' }}</div></div>
+                                                <div><div class="text-slate-400">STL/G</div><div>{{ $p->spg ?? '—' }}</div></div>
+                                                <div><div class="text-slate-400">BLK/G</div><div>{{ $p->bpg ?? '—' }}</div></div>
                                                 <div class="col-span-2 md:col-span-3">
                                                     <div class="text-slate-400">Stocks/G</div>
                                                     <div>{{ ($p->games && $p->steals !== null && $p->blocked_shots !== null) ? round(($p->steals + $p->blocked_shots) / $p->games, 1) : '—' }}</div>

@@ -10,7 +10,8 @@ class PortalStatsController extends Controller
     public function index(Request $request)
     {
         $season = (int) $request->get('season', 2026);
-        $limit = min((int) $request->get('limit', 100), 500);
+        // $limit = min((int) $request->get('limit', 100), 500);
+        $limit = 500;
 
         $sort = $request->get('sort', 'first_reported_at');
         $dir = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
@@ -53,9 +54,10 @@ class PortalStatsController extends Controller
 
         $query = DB::table('portal_events as e')
             ->leftJoin('player_season_stats as s', function ($join) use ($season) {
-                $join->on('e.player_name', '=', 's.player_name')
+                $join->on('e.sportsdataio_player_id', '=', 's.sportsdataio_player_id')
                     ->where('s.season', '=', $season);
-            });
+        })
+        ->leftJoin('players as p2', 'e.sportsdataio_player_id', '=', 'p2.sportsdataio_player_id');
 
         $query->whereNotNull('s.id');
 
@@ -67,15 +69,17 @@ class PortalStatsController extends Controller
         }
 
         if ($position !== '') {
-            $query->where('s.position', $position);
-        }
+            $position = strtoupper(trim($position));
 
-        $sort = $request->get('sort', 'ppg');
-        $dir = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
+            $query->whereRaw('UPPER(s.position) LIKE ?', ['%' . $position . '%']);
+        }
 
         $players = $query
         ->select(
+            'e.sportsdataio_player_id',
             'e.player_name',
+            'p2.height',
+            'p2.weight',
             'e.from_team',
             's.field_goals_made',
             's.field_goals_attempted',
@@ -123,7 +127,10 @@ class PortalStatsController extends Controller
             DB::raw('CASE WHEN s.games > 0 THEN ROUND(1.0 * s.turnovers / s.games, 1) END as tovpg')
         )
         ->groupBy(
+            'e.sportsdataio_player_id',
             'e.player_name',
+            'p2.height',
+            'p2.weight',
             'e.from_team',
             's.field_goals_made',
             's.field_goals_attempted',
